@@ -27,7 +27,10 @@ class _NewItemState extends State<NewItem> {
 
               ),
               validator: (value){
-                return 'hello';
+                if(value==null || value.trim().isEmpty){
+                  return 'Name cannot be empty';
+                }
+                return null;
               },
             ),
             Row(crossAxisAlignment: CrossAxisAlignment.end  //CrossAxisAlignment.end is used to align the children to the end of the row vertically
@@ -40,7 +43,10 @@ class _NewItemState extends State<NewItem> {
                   initialValue: '1',
                   keyboardType: TextInputType.number,
                   validator: (value){
-                    return 'hello';
+                    if(value==null || value.isEmpty || int.tryParse(value)==null || int.parse(value)<=0){
+                      return 'Must be a valid positive number';
+                    }
+                    return null;
                   },
                 ),
               ),
