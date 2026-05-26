@@ -24,8 +24,65 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
     });
   }
 
+  void _removeItem(GroceryItem item) {
+    setState(() {
+      _groceryItems.remove(item);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    Widget content = ListView.builder(
+      itemCount: _groceryItems.length,
+      itemBuilder: (ctx, index) => Dismissible(
+        key: ValueKey(_groceryItems[index].id),
+        onDismissed: (direction) {
+          // setState(() {
+          //   //_groceryItems.removeAt(index);
+          //
+          // });
+          _removeItem(_groceryItems[index]);
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Item removed'),
+              duration: Duration(seconds: 2),
+                action: SnackBarAction(
+                label: 'Undo',
+                onPressed: () {
+                  setState(() {
+                    _groceryItems.insert(index, _groceryItems[index]);
+                  });
+                },
+              ),
+            ),
+          );
+
+        },
+        background: Container(
+          color: Theme.of(context).colorScheme.error,
+        ),
+        child: ListTile(
+          title: Text(_groceryItems[index].name),
+          leading: Container(
+            width: 24,
+            height: 24,
+            color: _groceryItems[index].category.color,
+          ),
+          trailing: Text(
+            _groceryItems[index].quantity.toString(),
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      ),
+    );
+
+    if (_groceryItems.isEmpty) {
+      content = Center(
+        child: Text('No items added yet'),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -54,21 +111,7 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
       //       ),
       //   ],
       // ),
-      body: ListView.builder(
-        itemCount: _groceryItems.length,
-        itemBuilder: (ctx, index) => ListTile(
-          title: Text(_groceryItems[index].name),
-          leading: Container(
-            width: 24,
-            height: 24,
-            color: _groceryItems[index].category.color,
-          ),
-          trailing: Text(
-            _groceryItems[index].quantity.toString(),
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-      ),
+      body: content,
     );
   }
 }
