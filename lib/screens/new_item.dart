@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/categories.dart';
 import '../models/category.dart';
 import '../models/grocery_item.dart';
+import 'package:http/http.dart' as http;
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -20,6 +21,8 @@ class _NewItemState extends State<NewItem> {
   void _saveItem() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      final url= Uri.https('');
+      http.post(url);
       Navigator.of(context).pop(GroceryItem(id: DateTime.now().toString(), name: _enteredName, quantity: _enteredQuantity, category: _selectedCategory));
     }
   }
