@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../data/categories.dart';
@@ -21,9 +23,16 @@ class _NewItemState extends State<NewItem> {
   void _saveItem() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      final url= Uri.https('');
-      http.post(url);
-      Navigator.of(context).pop(GroceryItem(id: DateTime.now().toString(), name: _enteredName, quantity: _enteredQuantity, category: _selectedCategory));
+      final url= Uri.https('shopping-list-4fcdf-default-rtdb.firebaseio.com', 'shopping-list.json');//remove https from url and add .json for header(it's like saying url/shopping-list)
+      http.post(url, headers:{
+        'Content-type': 'application/json'
+      },
+      body: json.encode({
+        'name': _enteredName,
+        'quantity': _enteredQuantity,
+        'category': _selectedCategory.title,
+      }));
+      //Navigator.of(context).pop(GroceryItem(id: DateTime.now().toString(), name: _enteredName, quantity: _enteredQuantity, category: _selectedCategory));
     }
   }
 
