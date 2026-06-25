@@ -20,11 +20,11 @@ class _NewItemState extends State<NewItem> {
   var _enteredQuantity = 1;
   var _selectedCategory = categories[Categories.vegetables]!;
 
-  void _saveItem() {
+  void _saveItem() async{
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       final url= Uri.https('shopping-list-4fcdf-default-rtdb.firebaseio.com', 'shopping-list.json');//remove https from url and add .json for header(it's like saying url/shopping-list)
-      http.post(url, headers:{
+      await http.post(url, headers:{
         'Content-type': 'application/json'
       },
       body: json.encode({
@@ -32,6 +32,12 @@ class _NewItemState extends State<NewItem> {
         'quantity': _enteredQuantity,
         'category': _selectedCategory.title,
       }));
+
+      if(!context.mounted){ //if widget is not part of the screen, dont do anything
+        return;
+      }
+
+      Navigator.pop(context);//cant use context across async gap(after await) need to check if context is not mounted to make sure you arent referring to an outdated context
       //Navigator.of(context).pop(GroceryItem(id: DateTime.now().toString(), name: _enteredName, quantity: _enteredQuantity, category: _selectedCategory));
     }
   }
