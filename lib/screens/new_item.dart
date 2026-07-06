@@ -19,27 +19,44 @@ class _NewItemState extends State<NewItem> {
   var _enteredName = '';
   var _enteredQuantity = 1;
   var _selectedCategory = categories[Categories.vegetables]!;
+  var isSending = false;
 
-  void _saveItem() async{
+  void _saveItem() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        isSending = true;
+      });
       _formKey.currentState!.save();
-      final url= Uri.https('shopping-list-4fcdf-default-rtdb.firebaseio.com', 'shopping-list.json');//remove https from url and add .json for header(it's like saying url/shopping-list)
-      final response=await http.post(url, headers:{
-        'Content-type': 'application/json'
-      },
-      body: json.encode({
-        'name': _enteredName,
-        'quantity': _enteredQuantity,
-        'category': _selectedCategory.title,
-      }));
+      final url = Uri.https(
+        'shopping-list-4fcdf-default-rtdb.firebaseio.com',
+        'shopping-list.json',
+      ); //remove https from url and add .json for header(it's like saying url/shopping-list)
+      final response = await http.post(
+        url,
+        headers: {'Content-type': 'application/json'},
+        body: json.encode({
+          'name': _enteredName,
+          'quantity': _enteredQuantity,
+          'category': _selectedCategory.title,
+        }),
+      );
 
-      final Map<String,dynamic> resData= json.decode(response.body);
+      final Map<String, dynamic> resData = json.decode(response.body);
 
-      if(!context.mounted){ //if widget is not part of the screen, dont do anything
+      if (!context.mounted) {
+        //if widget is not part of the screen, dont do anything
         return;
       }
 
-      Navigator.pop(context, GroceryItem(id: resData['name'], name: _enteredName, quantity: _enteredQuantity, category: _selectedCategory));//cant use context across async gap(after await) need to check if context is not mounted to make sure you arent referring to an outdated context
+      Navigator.pop(
+        context,
+        GroceryItem(
+          id: resData['name'],
+          name: _enteredName,
+          quantity: _enteredQuantity,
+          category: _selectedCategory,
+        ),
+      ); //cant use context across async gap(after await) need to check if context is not mounted to make sure you arent referring to an outdated context
       //Navigator.of(context).pop(GroceryItem(id: DateTime.now().toString(), name: _enteredName, quantity: _enteredQuantity, category: _selectedCategory));
     }
   }
@@ -130,12 +147,15 @@ class _NewItemState extends State<NewItem> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
-                      _formKey.currentState!.reset();
-                    },
+                    //button can be disabled by passing null to onPressed
+                    onPressed: isSending
+                        ? null
+                        : () {
+                            _formKey.currentState!.reset();
+                          },
                     child: Text('Reset'),
                   ),
-                  ElevatedButton(onPressed: _saveItem, child: Text('Add Item')),
+                  ElevatedButton(onPressed: isSending?null:_saveItem, child: Text('Add Item')),
                 ],
               ),
             ],
