@@ -155,7 +155,8 @@ class _NewItemState extends State<NewItem> {
                           },
                     child: Text('Reset'),
                   ),
-                  ElevatedButton(onPressed: isSending?null:_saveItem, child: Text('Add Item')),
+                  ElevatedButton(onPressed: isSending?
+                  null:_saveItem, child: isSending?SizedBox(height: 16, width: 16, child: CircularProgressIndicator()):Text('Add Item')),
                 ],
               ),
             ],

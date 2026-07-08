@@ -77,6 +77,11 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
   }
 
   void _removeItem(GroceryItem item) {
+    final url = Uri.https(
+      'shopping-list-4fcdf-default-rtdb.firebaseio.com',
+      'shopping-list/${item.id}.json',
+    );
+    http.delete(url);
     setState(() {
       _groceryItems.remove(item);
     });
