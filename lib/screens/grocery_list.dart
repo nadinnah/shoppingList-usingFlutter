@@ -27,6 +27,7 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
   }
 
   void _loadItems() async {
+    var error= "";
     final url = Uri.https(
       'shopping-list-4fcdf-default-rtdb.firebaseio.com',
       'shopping-list.json',
@@ -35,6 +36,17 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
       url,
       headers: {'Content-type': 'application/json'},
     );
+    if (response.statusCode >= 400) {
+      setState(() {
+        error="Failed to fetch data. Please try again later.";
+      });
+    }
+    if(response.body=='null'){
+      setState(() {
+       isLoading= false;
+      });
+      return;
+    }
     final Map<String, dynamic> listData = json.decode(
       response.body,
     );
