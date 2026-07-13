@@ -16,8 +16,8 @@ class GroceryListScreen extends StatefulWidget {
 }
 
 class _GroceryListScreenState extends State<GroceryListScreen> {
-   List<GroceryItem> _groceryItems = [];
-   var isLoading= true;
+  List<GroceryItem> _groceryItems = [];
+  var isLoading = true;
 
   @override
   void initState() {
@@ -27,60 +27,65 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
   }
 
   void _loadItems() async {
-    var error= "";
+    var error = "";
     final url = Uri.https(
       'shopping-list-4fcdf-default-rtdb.firebaseio.com',
       'shopping-list.json',
-    ); //remove https from url and add .json for header(it's like saying url/shopping-list)
-    final response = await http.get(
-      url,
-      headers: {'Content-type': 'application/json'},
     );
-    if (response.statusCode >= 400) {
-      setState(() {
-        error="Failed to fetch data. Please try again later.";
-      });
-    }
-    if(response.body=='null'){
-      setState(() {
-       isLoading= false;
-      });
-      return;
-    }
-    final Map<String, dynamic> listData = json.decode(
-      response.body,
-    );
-    final List<GroceryItem> loadedItems = [];
-
-    for (final item in listData.entries) {
-      final category = categories.entries
-          .firstWhere(
-            (categoryItem) =>
-                categoryItem.value.title == item.value['category'],
-          )
-          .value;
-      loadedItems.add(
-        GroceryItem(
-          id: item.key,
-          name: item.value['name'],
-          quantity: item.value['quantity'],
-          category: category,
-        ),
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Content-type': 'application/json'},
       );
-    }
+      if (response.statusCode >= 400) {
+        setState(() {
+          error = "Failed to fetch data. Please try again later.";
+        });
+      }
+      if (response.body == 'null') {
+        setState(() {
+          isLoading = false;
+        });
+        return;
+      }
+      final Map<String, dynamic> listData = json.decode(response.body);
+      final List<GroceryItem> loadedItems = [];
 
-    setState(() {
-      _groceryItems = loadedItems;
-      isLoading= false;
-    });
+      for (final item in listData.entries) {
+        final category = categories.entries
+            .firstWhere(
+              (categoryItem) =>
+                  categoryItem.value.title == item.value['category'],
+            )
+            .value;
+        loadedItems.add(
+          GroceryItem(
+            id: item.key,
+            name: item.value['name'],
+            quantity: item.value['quantity'],
+            category: category,
+          ),
+        );
+      }
+
+      setState(() {
+        _groceryItems = loadedItems;
+        isLoading = false;
+      });
+    } //remove https from url and add .json for header(it's like saying url/shopping-list)
+    catch (e) {
+      setState(() {
+        error = "Something went wrong. Please try again later.";
+      });
+    }
   }
 
   void _addItem(BuildContext context) async {
-    final newItem= await Navigator.of(
+    final newItem = await Navigator.of(
       context,
     ).push<GroceryItem>(MaterialPageRoute(builder: (ctx) => NewItem()));
 
-    if(newItem==null){
+    if (newItem == null) {
       return;
     }
     setState(() {
@@ -88,7 +93,7 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
     });
   }
 
-  void _removeItem(GroceryItem item) async{
+  void _removeItem(GroceryItem item) async {
     final index = _groceryItems.indexOf(item);
     setState(() {
       _groceryItems.remove(item);
@@ -97,9 +102,9 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
       'shopping-list-4fcdf-default-rtdb.firebaseio.com',
       'shopping-list/${item.id}.json',
     );
-    final response= await http.delete(url);
+    final response = await http.delete(url);
 
-    if(response.statusCode>=400){
+    if (response.statusCode >= 400) {
       setState(() {
         _groceryItems.insert(index, item);
       });
@@ -150,8 +155,8 @@ class _GroceryListScreenState extends State<GroceryListScreen> {
       ),
     );
 
-    if(isLoading){
-      content= Center(child: CircularProgressIndicator());
+    if (isLoading) {
+      content = Center(child: CircularProgressIndicator());
     }
 
     if (_groceryItems.isEmpty) {
